@@ -1,0 +1,21 @@
+# ينشر ملف التطبيق: كل دفعة إلى الفرع apk-in (فيه itqan.apk و version.txt فقط) تصير إصدارًا جديدًا بعنوان «أحدث نسخة»
+name: Publish APK
+on:
+  push:
+    branches: [apk-in]
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(cat version.txt)
+          gh release delete "v$V" -R "$GITHUB_REPOSITORY" -y --cleanup-tag 2>/dev/null || true
+          gh release create "v$V" itqan.apk -R "$GITHUB_REPOSITORY" --target main --latest \
+            --title "إتقان: نسخة $V" \
+            --notes "نزّل الملف itqan.apk على الموبايل وثبّته فوق النسخة القديمة. صفحة التنزيل: https://itqan-edu.github.io/itqan-app/"
